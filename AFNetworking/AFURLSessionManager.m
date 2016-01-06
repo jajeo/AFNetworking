@@ -314,8 +314,26 @@ didCompleteWithError:(NSError *)error
             });
         });
     }
+#pragma mark - modify by jajeo perpose for log request infomations
+#if DEBUG
+    if (error) {
+        [self _logRequestInfomationsWithTitle:@"请求出错" WithMessage:error.localizedDescription];
+    } else {
+        if (self.mutableData) {
+            NSString *retStr = [[NSString alloc] initWithData:self.mutableData encoding:NSUTF8StringEncoding];
+            [self _logRequestInfomationsWithTitle:@"返回结果" WithMessage:retStr];
+        }
+    }
+#endif
 #pragma clang diagnostic pop
 }
+
+- (void)_logRequestInfomationsWithTitle:(NSString*)title WithMessage:(NSString*)mesg{
+    printf("=============================================================================================================\n");
+    printf("\n%s:\n%s\n", [title UTF8String], [mesg UTF8String]);
+    printf("\n=============================================================================================================\n");
+}
+
 
 #pragma mark - NSURLSessionDataTaskDelegate
 

@@ -145,6 +145,9 @@
     return dataTask;
 }
 
+
+
+
 - (NSURLSessionDataTask *)POST:(NSString *)URLString
                     parameters:(id)parameters
                        success:(void (^)(NSURLSessionDataTask *task, id responseObject))success
@@ -159,12 +162,43 @@
                        success:(void (^)(NSURLSessionDataTask * _Nonnull, id _Nullable))success
                        failure:(void (^)(NSURLSessionDataTask * _Nullable, NSError * _Nonnull))failure
 {
+#pragma mark - modify by jajeo perporse for log request informations
+#if DEBUG
+    NSString *urlStr = [NSString stringWithFormat:@"%@%@", self.baseURL, URLString];
+    [self _logRequestInfomationsWithTitle:@"请求URL" WithMessage:urlStr];
+    
+    NSMutableString *paramsStr = [[NSMutableString alloc] init];
+    if ([parameters isKindOfClass:[NSDictionary class]]) {
+        for (NSString *key in parameters) {
+            [paramsStr appendFormat:@"%@: %@\n", key , parameters[key]];
+        }
+    } else {
+        [paramsStr appendFormat:@"%@", parameters];
+    }
+    [self _logRequestInfomationsWithTitle:@"请求参数" WithMessage:paramsStr];
+    
+    paramsStr = [[NSMutableString alloc] init];
+    NSDictionary *tempDic = self.requestSerializer.HTTPRequestHeaders;
+    for (NSString *key in tempDic) {
+        [paramsStr appendFormat:@"%@: %@\n", key , tempDic[key]];
+    }
+    
+    [self _logRequestInfomationsWithTitle:@"HTTP Header" WithMessage:paramsStr];
+#endif
+    
     NSURLSessionDataTask *dataTask = [self dataTaskWithHTTPMethod:@"POST" URLString:URLString parameters:parameters uploadProgress:uploadProgress downloadProgress:nil success:success failure:failure];
 
     [dataTask resume];
 
     return dataTask;
 }
+
+- (void)_logRequestInfomationsWithTitle:(NSString*)title WithMessage:(NSString*)mesg{
+    printf("=============================================================================================================\n");
+    printf("\n%s:\n%s\n", [title UTF8String], [mesg UTF8String]);
+    printf("\n=============================================================================================================\n");
+}
+
 
 - (NSURLSessionDataTask *)POST:(NSString *)URLString
                     parameters:(nullable id)parameters
